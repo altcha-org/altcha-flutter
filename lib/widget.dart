@@ -144,25 +144,6 @@ class AltchaWidgetState extends State<AltchaWidget> {
     return null;
   }
 
-  Future<String> _hashChallenge(String salt, int num, String algorithm) async {
-    final bytes = utf8.encode(salt + num.toString());
-    Digest digest;
-    switch (algorithm.toUpperCase()) {
-      case 'SHA-256':
-        digest = sha256.convert(bytes);
-        break;
-      case 'SHA-384':
-        digest = sha384.convert(bytes);
-        break;
-      case 'SHA-512':
-        digest = sha512.convert(bytes);
-        break;
-      default:
-        throw UnsupportedError('Unsupported hashing algorithm: $algorithm');
-    }
-    return digest.toString();
-  }
-
   void _log(String message) {
     if (widget.debug || kDebugMode) {
       debugPrint('[ALTCHA] $message');
@@ -278,23 +259,91 @@ class AltchaWidgetState extends State<AltchaWidget> {
     }
   }
 
+    /// Solve the challenge, using compute() (isolate) when possible.
+  /// On platforms where isolates are not available (e.g. web) or if compute()
+  /// fails, fall back to a non-blocking main-thread solver that yields
+  /// periodically to keep the UI responsive.
   Future<AltchaSolution?> _solveChallenge(
     String algorithm,
     String challenge,
     String salt,
     int? max,
   ) async {
-    final Stopwatch stopwatch = Stopwatch()..start();
-    max ??= 1_000_000;
+    final args = {
+      'algorithm': algorithm,
+      'challenge': challenge,
+      'salt': salt,
+      'max': max ?? 1_000_000,
+    };
+
+    // Try using compute/isolate when available
+    if (!kIsWeb) {
+      try {
+        final result = await compute(_solveChallengeIsolate, args);
+        if (result == null) return null;
+        return AltchaSolution(
+            number: result['number'] as int, took: result['took'] as int);
+      } catch (e) {
+        _log('compute() failed, falling back to main-thread solver: $e');
+        // fall through to main-thread solver
+      }
+    } else {
+      // On web, avoid compute() because isolates are not supported the same way.
+      _log('kIsWeb detected — using yielding main-thread solver');
+    }
+
+    // Fallback: run a yielding solver on the main thread so UI remains responsive.
+    final mainResult =
+        await _solveChallengeMainThread(algorithm, challenge, salt, max ?? 1_000_000);
+    if (mainResult == null) return null;
+    return AltchaSolution(number: mainResult['number'] as int, took: mainResult['took'] as int);
+  }
+
+  /// A non-isolate version of the solver that periodically yields to the
+  /// event loop to keep the UI responsive. This runs on the main thread.
+  Future<Map<String, int>?> _solveChallengeMainThread(
+    String algorithm,
+    String challenge,
+    String salt,
+    int max,
+  ) async {
+    final stopwatch = Stopwatch()..start();
+
+    // Choose a chunk size that balances throughput and UI responsiveness.
+    // ~1000 is usually a good tradeoff; increase if you want faster solve and UI remains OK.
+    const int chunk = 1000;
+
     for (int n = 0; n <= max; n++) {
-      final String hashedValue = await _hashChallenge(salt, n, algorithm);
-      if (hashedValue == challenge) {
+      final bytes = utf8.encode('$salt$n');
+      Digest digest;
+      switch (algorithm.toUpperCase()) {
+        case 'SHA-256':
+          digest = sha256.convert(bytes);
+          break;
+        case 'SHA-384':
+          digest = sha384.convert(bytes);
+          break;
+        case 'SHA-512':
+          digest = sha512.convert(bytes);
+          break;
+        default:
+          return null; // unsupported algorithm
+      }
+      if (digest.toString() == challenge) {
         stopwatch.stop();
-        return AltchaSolution(number: n, took: stopwatch.elapsedMilliseconds);
+        return {'number': n, 'took': stopwatch.elapsedMilliseconds};
+      }
+
+      // Periodically yield control so UI can render / handle events.
+      if (n % chunk == 0) {
+        // slight delay to let event loop run; zero-duration is adequate.
+        await Future<void>.delayed(Duration.zero);
       }
     }
+
     return null;
   }
+
 
   Future<void> verify() async {
     reset();
@@ -532,3 +581,40 @@ const String altchaLogoSvg = '''
   <path d="M7 10H5C5 12.7614 7.23858 15 10 15C12.7614 15 15 12.7614 15 10H13C13 11.6569 11.6569 13 10 13C8.3431 13 7 11.6569 7 10Z" fill="currentColor"/>
 </svg>
 ''';
+
+Future<Map<String, dynamic>?> _solveChallengeIsolate(Map<String, dynamic> args) async {
+  final String algorithm = args['algorithm'] as String;
+  final String challenge = args['challenge'] as String;
+  final String salt = args['salt'] as String;
+  final int max = args['max'] as int? ?? 1000000;
+
+  final stopwatch = Stopwatch()..start();
+
+  for (int n = 0; n <= max; n++) {
+    final bytes = utf8.encode('$salt$n');
+    Digest digest;
+    switch (algorithm.toUpperCase()) {
+      case 'SHA-256':
+        digest = sha256.convert(bytes);
+        break;
+      case 'SHA-384':
+        digest = sha384.convert(bytes);
+        break;
+      case 'SHA-512':
+        digest = sha512.convert(bytes);
+        break;
+      default:
+      // unsupported -> return null (will be handled by caller)
+        return null;
+    }
+    if (digest.toString() == challenge) {
+      stopwatch.stop();
+      return {'number': n, 'took': stopwatch.elapsedMilliseconds};
+    }
+    // optional: occasionally yield to avoid starving VM scheduler (rarely needed)
+    // if (n % 10000 == 0) await Future(() {});
+  }
+
+  return null;
+}
+

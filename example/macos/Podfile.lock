@@ -1,7 +1,7 @@
 PODS:
   - audio_session (0.0.1):
     - FlutterMacOS
-  - flutter_native_timezone (0.0.1):
+  - flutter_timezone (0.1.0):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - just_audio (0.0.1):
@@ -13,7 +13,7 @@ PODS:
 
 DEPENDENCIES:
   - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
-  - flutter_native_timezone (from `Flutter/ephemeral/.symlinks/plugins/flutter_native_timezone/macos`)
+  - flutter_timezone (from `Flutter/ephemeral/.symlinks/plugins/flutter_timezone/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/darwin`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
@@ -21,8 +21,8 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   audio_session:
     :path: Flutter/ephemeral/.symlinks/plugins/audio_session/macos
-  flutter_native_timezone:
-    :path: Flutter/ephemeral/.symlinks/plugins/flutter_native_timezone/macos
+  flutter_timezone:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_timezone/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   just_audio:
@@ -32,7 +32,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   audio_session: 728ae3823d914f809c485d390274861a24b0904e
-  flutter_native_timezone: 3a4724189c47dea215bb3e168e555e18308d312c
+  flutter_timezone: b3bc0c587d8780d395651284a1ff46eb1e5753ac
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   just_audio: a42c63806f16995daf5b219ae1d679deb76e6a79
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
