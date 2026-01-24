@@ -29,7 +29,7 @@ dependencies:
   crypto: ^3.0.6
   flutter:
     sdk: flutter
-  flutter_native_timezone: ^2.0.0
+  flutter_timezone: ^5.0.0
   flutter_svg: ^2.2.0
   http: ^1.4.0
   just_audio: ^0.10.4

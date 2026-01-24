@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'widgets/code_challenge.dart';
 import 'models/challenge.dart';
 import 'models/server_verification.dart';
@@ -135,9 +135,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
     return widget.verifyUrl;
   }
 
-  Future<String?> _getTimezone() async {
+  Future<TimezoneInfo?> _getTimezone() async {
     try {
-      return FlutterNativeTimezone.getLocalTimezone();
+      return FlutterTimezone.getLocalTimezone();
     } catch (e) {
       _log('Could not get time zone: $e');
     }
@@ -244,7 +244,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
       final body = jsonEncode({
         'code': code,
         'payload': payload,
-        'timeZone': _sentinelTimeZone ? await _getTimezone() : null,
+        'timeZone': _sentinelTimeZone
+            ? (await _getTimezone())?.identifier
+            : null,
       });
       final headers = {'Content-Type': 'application/json'};
       final response = await http.post(uri, body: body, headers: headers);
