@@ -21,6 +21,7 @@ void main() {
 
   setUp(() {
     httpClient = MockHttpClient();
+    registerFallbackValue(Uri.parse('https://example.com'));
   });
 
   testWidgets('AltchaWidget builds and shows checkbox', (WidgetTester tester) async {
@@ -92,6 +93,7 @@ void main() {
           body: AltchaWidget(
             challengeJson: testChallenge,
             debug: true,
+            useIsolate: false,
           ),
         ),
       ),
@@ -121,6 +123,7 @@ void main() {
               },
             },
             debug: true,
+            useIsolate: false,
             verifyUrl: 'https://example.com/verify',
           ),
         ),
@@ -141,7 +144,7 @@ void main() {
   });
 
   testWidgets('AltchaWidget passes verification with challengeUrl', (WidgetTester tester) async {
-    when(() => httpClient.get(Uri.parse('https://example.com/altcha')))
+    when(() => httpClient.get(any(), headers: any(named: 'headers')))
         .thenAnswer((_) async => http.Response(jsonEncode(testChallenge), 200));
 
     await tester.pumpWidget(
@@ -151,6 +154,7 @@ void main() {
             challengeUrl: 'https://example.com/altcha',
             debug: true,
             httpClient: httpClient,
+            useIsolate: false,
           ),
         ),
       ),
@@ -169,7 +173,7 @@ void main() {
   });
 
   testWidgets('AltchaWidget shows error when request fails', (WidgetTester tester) async {
-    when(() => httpClient.get(Uri.parse('https://example.com/altcha')))
+    when(() => httpClient.get(any(), headers: any(named: 'headers')))
         .thenAnswer((_) async => http.Response(jsonEncode({}), 404));
 
     await tester.pumpWidget(
@@ -179,6 +183,7 @@ void main() {
             challengeUrl: 'https://example.com/altcha',
             debug: true,
             httpClient: httpClient,
+            useIsolate: false,
           ),
         ),
       ),

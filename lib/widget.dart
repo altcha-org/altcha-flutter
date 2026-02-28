@@ -25,6 +25,7 @@ class AltchaWidget extends StatefulWidget {
   final ValueChanged<Object>? onFailed;
   final ValueChanged<AltchaServerVerification>? onServerVerification;
   final ValueChanged<String>? onVerified;
+  final bool useIsolate;
   final String? verifyUrl;
 
   AltchaWidget({
@@ -38,6 +39,7 @@ class AltchaWidget extends StatefulWidget {
     this.onFailed,
     this.onServerVerification,
     this.onVerified,
+    this.useIsolate = true,
     this.verifyUrl,
     http.Client? httpClient,
     Map<String, String>? httpHeaders,
@@ -259,7 +261,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
     }
   }
 
-    /// Solve the challenge, using compute() (isolate) when possible.
+  /// Solve the challenge, using compute() (isolate) when possible.
   /// On platforms where isolates are not available (e.g. web) or if compute()
   /// fails, fall back to a non-blocking main-thread solver that yields
   /// periodically to keep the UI responsive.
@@ -277,7 +279,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
     };
 
     // Try using compute/isolate when available
-    if (!kIsWeb) {
+    if (!kIsWeb && widget.useIsolate) {
       try {
         final result = await compute(_solveChallengeIsolate, args);
         if (result == null) return null;
