@@ -1,3 +1,7 @@
+## 1.2.0
+
+* Fix: Web UI freeze during challenge solving [#4]
+
 ## 1.1.0
 
 * Fix: code input covered with keyboard [#3] 

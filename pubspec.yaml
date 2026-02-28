@@ -1,6 +1,6 @@
 name: altcha_widget
 description: "Privacy-first, accessible CAPTCHA widget, compliant with global data privacy regulations. No tracking, self-verifying."
-version: 1.1.0
+version: 1.2.0
 homepage: https://altcha.org
 repository: https://github.com/altcha-org/altcha-flutter
 issue_tracker: https://github.com/altcha-org/altcha-flutter/issues
