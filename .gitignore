@@ -23,6 +23,8 @@ build/
 # iOS / macOS
 **/ios/Pods/
 **/macos/Pods/
+**/ios/**/.build/
+**/macos/**/.build/
 **/ios/.symlinks/
 **/macos/.symlinks/
 **/ios/Flutter/Generated.xcconfig

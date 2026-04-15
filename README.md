@@ -59,7 +59,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  altcha_widget: ^2.0.1
+  altcha_widget: ^2.0.2
 ```
 
 > **Note:** `altcha_widget` depends on `just_audio` for audio code challenges. Platform-specific setup may be required — see the [just_audio README](https://pub.dev/packages/just_audio#readme) for details.
@@ -324,7 +324,7 @@ When `deriveKey` is set, the widget runs the function in a background isolate vi
 ```yaml
 # pubspec.yaml
 dependencies:
-  altcha_widget: ^2.0.1
+  altcha_widget: ^2.0.2
   sodium: ^4.0.2
 ```
 

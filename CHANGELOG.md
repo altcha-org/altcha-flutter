@@ -1,3 +1,7 @@
+## 2.0.2
+
+- Fix formatting and web compatibility
+
 ## 2.0.1
 
 - Fix web compatibility (audio)
