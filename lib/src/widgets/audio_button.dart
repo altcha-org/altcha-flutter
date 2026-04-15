@@ -1,11 +1,10 @@
-import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:altcha_widget/src/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:just_audio/just_audio.dart';
-import 'package:path_provider/path_provider.dart';
+
+import '../audio/audio.dart';
 
 class AltchaAudioButtonWidget extends StatefulWidget {
   final void Function(String message)? log;
@@ -27,49 +26,23 @@ class AltchaAudioButtonWidget extends StatefulWidget {
 }
 
 class _AltchaAudioButtonWidgetState extends State<AltchaAudioButtonWidget> {
-  final AudioPlayer _player = AudioPlayer();
+  final PlatformAudioPlayer _player = PlatformAudioPlayer();
 
   bool _isLoading = false;
   bool _isPlaying = false;
 
   Uint8List? _cachedBytes;
   String? _cachedUrl;
-  File? _tempAudioFile;
-
-  StreamSubscription<PlayerState>? _playerStateSubscription;
 
   @override
   void initState() {
     super.initState();
-
-    _playerStateSubscription = _player.playerStateStream.listen((playerState) {
+    _player.init((isLoading, isPlaying) {
       if (!mounted) return;
-
-      final processingState = playerState.processingState;
-      final playing = playerState.playing;
-
-      if (processingState == ProcessingState.loading ||
-          processingState == ProcessingState.buffering) {
-        setState(() {
-          _isLoading = true;
-          _isPlaying = false;
-        });
-      } else if (!playing) {
-        setState(() {
-          _isPlaying = false;
-          _isLoading = false;
-        });
-      } else if (processingState == ProcessingState.ready && playing) {
-        setState(() {
-          _isPlaying = true;
-          _isLoading = false;
-        });
-      } else if (processingState == ProcessingState.completed) {
-        setState(() {
-          _isPlaying = false;
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        _isLoading = isLoading;
+        _isPlaying = isPlaying;
+      });
     });
   }
 
@@ -80,16 +53,6 @@ class _AltchaAudioButtonWidgetState extends State<AltchaAudioButtonWidget> {
       return path.substring(dotIndex);
     }
     return '.wav';
-  }
-
-  Future<File> _writeBytesToTempFile(Uint8List bytes, String extension) async {
-    final tempDir = await getTemporaryDirectory();
-    // Ensure the directory exists — on macOS sandbox the returned path may not
-    // yet have been created by the OS.
-    await Directory(tempDir.path).create(recursive: true);
-    final file = File('${tempDir.path}/altcha_audio_cache$extension');
-    await file.writeAsBytes(bytes, flush: true);
-    return file;
   }
 
   Future<void> _playAudio() async {
@@ -118,17 +81,10 @@ class _AltchaAudioButtonWidgetState extends State<AltchaAudioButtonWidget> {
         }
         _cachedBytes = response.bodyBytes;
         _cachedUrl = urlString;
-
-        final extension = _getExtensionFromUrl(uriWithLanguage);
-        _tempAudioFile = await _writeBytesToTempFile(_cachedBytes!, extension);
       }
 
-      if (_tempAudioFile == null) {
-        throw Exception('Failed to prepare audio file');
-      }
-
-      await _player.setFilePath(_tempAudioFile!.path);
-      await _player.play();
+      final extension = _getExtensionFromUrl(uriWithLanguage);
+      await _player.play(_cachedBytes!, extension);
     } catch (e) {
       widget.log?.call('audio error: $e');
       if (mounted) {
@@ -149,9 +105,7 @@ class _AltchaAudioButtonWidgetState extends State<AltchaAudioButtonWidget> {
 
   @override
   void dispose() {
-    _playerStateSubscription?.cancel();
     _player.dispose();
-    _tempAudioFile?.delete();
     super.dispose();
   }
 

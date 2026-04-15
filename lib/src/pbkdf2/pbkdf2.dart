@@ -5,4 +5,4 @@
 //     is applied by the caller via try-catch on MissingPluginException)
 export 'pbkdf2_stub.dart'
     if (dart.library.io) 'pbkdf2_io.dart'
-    if (dart.library.html) 'pbkdf2_web.dart';
+    if (dart.library.js_interop) 'pbkdf2_web.dart';

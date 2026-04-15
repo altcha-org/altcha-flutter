@@ -91,10 +91,10 @@ class _AltchaDemoPageState extends State<AltchaDemoPage> {
   final GlobalKey<AltchaWidgetState> _altchaKey = GlobalKey();
 
   final TextEditingController _challengeUrlController = TextEditingController(
-    text: 'http://127.0.0.1:3000/v1/challenge',
+    text: 'https://sentinel-test.b-cdn.net/v1/challenge?apiKey=key_1j4lrsfk900a3ukffs7', //'http://127.0.0.1:3000/v1/challenge',
   );
 
-  String _challengeUrl = 'http://127.0.0.1:3000/v1/challenge';
+  String _challengeUrl = 'https://sentinel-test.b-cdn.net/v1/challenge?apiKey=key_1j4lrsfk900a3ukffs7'; //'http://127.0.0.1:3000/v1/challenge';
 
   String? _verifiedPayload;
   AltchaServerVerification? _serverVerification;
