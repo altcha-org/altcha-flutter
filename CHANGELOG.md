@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Fix web compatibility (audio)
+
 ## 2.0.0
 
 - Support for PoW v2 challenge format

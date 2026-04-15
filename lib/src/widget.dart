@@ -345,7 +345,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
 
   /// Builds a User-Agent string compatible with ua-parser-js conventions.
   String _buildUserAgent() {
-    const app = 'altcha-flutter/2.0.0';
+    const app = 'altcha-flutter/2.0.1';
     final v = _extractVersion(Platform.operatingSystemVersion);
     if (Platform.isAndroid) {
       // ua-parser-js detects Android via "Linux; Android X.X" pattern.
