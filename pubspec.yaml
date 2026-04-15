@@ -1,0 +1,56 @@
+name: altcha_widget
+description: "Privacy-first, accessible CAPTCHA widget, compliant with global data privacy regulations. No tracking, self-verifying."
+version: 2.0.0
+homepage: https://altcha.org
+repository: https://github.com/altcha-org/altcha-flutter
+issue_tracker: https://github.com/altcha-org/altcha-flutter/issues
+topics:
+  - altcha
+  - captcha
+  - recaptcha
+  - invisible-captcha
+  - security
+
+environment:
+  sdk: ^3.8.1
+  flutter: ">=1.17.0"
+
+dependencies:
+  altcha_lib: ^0.2.0
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  flutter_svg: ^2.2.0
+  flutter_timezone: ^5.0.0
+  http: ^1.4.0
+  just_audio: ^0.10.4
+  path_provider: ^2.1.5
+  web: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_localizations:
+    sdk: flutter
+  mocktail: ^1.0.4
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: org.altcha.altcha_widget
+        pluginClass: AltchaWidgetPlugin
+      ios:
+        pluginClass: AltchaWidgetPlugin
+      macos:
+        pluginClass: AltchaWidgetPlugin
+      linux:
+        pluginClass: altcha_widget_plugin  # GObject type name (snake_case)
+        fileName: altcha_widget_plugin.cc
+      windows:
+        pluginClass: AltchaWidgetPlugin
+      web:
+        pluginClass: AltchaWidgetWeb
+        fileName: altcha_widget_web.dart
