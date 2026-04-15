@@ -33,8 +33,7 @@ class AltchaCodeChallengeWidget extends StatefulWidget {
       _AltchaCodeChallengeWidgetState();
 }
 
-class _AltchaCodeChallengeWidgetState
-    extends State<AltchaCodeChallengeWidget> {
+class _AltchaCodeChallengeWidgetState extends State<AltchaCodeChallengeWidget> {
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FocusNode _inputFocusNode = FocusNode();

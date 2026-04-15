@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 
@@ -40,7 +38,7 @@ class HisCollector {
   List<num>? _pendingTouch;
 
   HisCollector({this.maxSamples = 60, this.sampleIntervalMs = 50})
-      : _startMs = DateTime.now().millisecondsSinceEpoch;
+    : _startMs = DateTime.now().millisecondsSinceEpoch;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -76,11 +74,7 @@ class HisCollector {
   /// `pointerType !== 'touch'`.
   void recordPointer(PointerEvent event) {
     final t = event.timeStamp.inMilliseconds;
-    _pendingPointer = [
-      event.position.dx.round(),
-      event.position.dy.round(),
-      t,
-    ];
+    _pendingPointer = [event.position.dx.round(), event.position.dy.round(), t];
     if (t - _lastPointerMs >= sampleIntervalMs) {
       pointer.add(_pendingPointer!);
       _lastPointerMs = t;
@@ -155,8 +149,13 @@ class HisCollector {
   }
 
   int _maxTouchPoints() {
-    if (kIsWeb) return 0; // browser reports this itself via navigator.maxTouchPoints
-    if (Platform.isAndroid || Platform.isIOS) return 5; // typical for modern mobile devices
+    if (kIsWeb) {
+      return 0; // browser reports this itself via navigator.maxTouchPoints
+    }
+    if (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS) {
+      return 5; // typical for modern mobile devices
+    }
     return 0;
   }
 }

@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:isolate';
 import 'package:altcha_lib/altcha_lib.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'algorithms.dart';
 import 'exceptions.dart';
 import 'his_collector.dart';
+import 'native.dart';
 import 'localizations.dart';
 import 'models/challenge.dart';
 import 'models/server_verification.dart';
@@ -186,7 +185,6 @@ class AltchaWidgetState extends State<AltchaWidget> {
     super.dispose();
   }
 
-
   /// Returns the challenge URL string when [widget.challenge] is a [String].
   String? get _challengeUrl =>
       widget.challenge is String ? widget.challenge as String : null;
@@ -210,16 +208,16 @@ class AltchaWidgetState extends State<AltchaWidget> {
       ...originUri.queryParameters,
       ...inputUri.queryParameters,
     };
-    final newPath =
-        inputUri.path.isNotEmpty ? inputUri.path : originUri.path;
+    final newPath = inputUri.path.isNotEmpty ? inputUri.path : originUri.path;
 
     return Uri(
       scheme: originUri.scheme,
       host: originUri.host,
       port: originUri.hasPort ? originUri.port : null,
       path: newPath,
-      queryParameters:
-          mergedQueryParameters.isNotEmpty ? mergedQueryParameters : null,
+      queryParameters: mergedQueryParameters.isNotEmpty
+          ? mergedQueryParameters
+          : null,
     );
   }
 
@@ -236,10 +234,10 @@ class AltchaWidgetState extends State<AltchaWidget> {
       final url = widget.challenge as String;
       _log('challenge url: $url');
       final uri = Uri.parse(url);
-      final response = await widget.httpClient.get(uri, headers: {
-        ..._buildExtraHeaders(),
-        ...?widget.httpHeaders,
-      });
+      final response = await widget.httpClient.get(
+        uri,
+        headers: {..._buildExtraHeaders(), ...?widget.httpHeaders},
+      );
       _log('challenge response (${response.statusCode}): ${response.body}');
       if (response.statusCode != 200) {
         throw ServerException(response.statusCode, 'Failed to load challenge');
@@ -257,26 +255,31 @@ class AltchaWidgetState extends State<AltchaWidget> {
             'Server requested HIS data but humanInteractionSignature is disabled.',
           );
         }
-        final hisUrl = _constructUrl(hisRequest.url, url) ?? Uri.parse(hisRequest.url);
+        final hisUrl =
+            _constructUrl(hisRequest.url, url) ?? Uri.parse(hisRequest.url);
         return await _submitHisAndFetchChallenge(hisUrl);
       }
 
       return AltchaChallenge.fromJson(data);
-    } on SocketException {
-      throw NetworkException('Network error.');
     } on FormatException {
       throw DataParsingException('Malformed JSON.');
+    } on http.ClientException catch (e) {
+      throw NetworkException(e.toString());
     }
   }
 
   /// Parses `x-altcha-config` header and `configuration` body field and
   /// applies them to widget state.  Call after every server response that may
   /// carry configuration (challenge fetch and HIS submission).
-  void _applyConfiguration(Map<String, String> headers, Map<String, dynamic> body) {
+  void _applyConfiguration(
+    Map<String, String> headers,
+    Map<String, dynamic> body,
+  ) {
     // x-altcha-config header (legacy / lower priority)
     final altchaConfigHeader = headers['x-altcha-config'];
     if (altchaConfigHeader != null && altchaConfigHeader.isNotEmpty) {
-      final altchaConfig = jsonDecode(altchaConfigHeader) as Map<String, dynamic>;
+      final altchaConfig =
+          jsonDecode(altchaConfigHeader) as Map<String, dynamic>;
       if (altchaConfig['verifyurl'] != null) {
         _verifyUrl = altchaConfig['verifyurl'] as String;
       }
@@ -309,7 +312,11 @@ class AltchaWidgetState extends State<AltchaWidget> {
       ...?widget.httpHeaders,
     };
     _log('HIS data: $body');
-    final response = await widget.httpClient.post(hisUrl, body: body, headers: headers);
+    final response = await widget.httpClient.post(
+      hisUrl,
+      body: body,
+      headers: headers,
+    );
     _log('HIS response (${response.statusCode}): ${response.body}');
     if (response.statusCode != 200) {
       throw ServerException(response.statusCode, 'HIS submission failed');
@@ -346,16 +353,16 @@ class AltchaWidgetState extends State<AltchaWidget> {
   /// Builds a User-Agent string compatible with ua-parser-js conventions.
   String _buildUserAgent() {
     const app = 'altcha-flutter/2.0.1';
-    final v = _extractVersion(Platform.operatingSystemVersion);
-    if (Platform.isAndroid) {
+    final v = _extractVersion(platformOsVersion);
+    if (platformIsAndroid) {
       // ua-parser-js detects Android via "Linux; Android X.X" pattern.
       return 'Mozilla/5.0 (Linux; Android $v; Flutter) $app';
-    } else if (Platform.isIOS) {
+    } else if (platformIsIOS) {
       // ua-parser-js detects iPhone OS via underscored version.
       return 'Mozilla/5.0 (iPhone; CPU iPhone OS ${v.replaceAll('.', '_')} like Mac OS X) $app';
-    } else if (Platform.isMacOS) {
+    } else if (platformIsMacOS) {
       return 'Mozilla/5.0 (Macintosh; Intel Mac OS X ${v.replaceAll('.', '_')}) $app';
-    } else if (Platform.isWindows) {
+    } else if (platformIsWindows) {
       return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) $app';
     } else {
       return 'Mozilla/5.0 (X11; Linux x86_64) $app';
@@ -389,15 +396,14 @@ class AltchaWidgetState extends State<AltchaWidget> {
     }
 
     // sec-ch-ua-mobile — only sent on mobile platforms
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (platformIsAndroid || platformIsIOS) {
       headers['sec-ch-ua-mobile'] = '?1';
     }
 
     // Origin + Referer — lets the server restrict requests by app identifier
     if (widget.origin != null && widget.origin!.isNotEmpty) {
       final raw = widget.origin!;
-      final origin =
-          raw.startsWith('https://') ? raw : 'https://$raw';
+      final origin = raw.startsWith('https://') ? raw : 'https://$raw';
       headers['Origin'] = origin;
       headers['Referer'] = '$origin/';
     }
@@ -428,10 +434,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
         imageBase64: image,
         log: _log,
         httpClient: widget.httpClient,
-        httpHeaders: {
-          ..._buildExtraHeaders(),
-          ...?widget.httpHeaders,
-        },
+        httpHeaders: {..._buildExtraHeaders(), ...?widget.httpHeaders},
         onSubmit: (code) {
           Navigator.of(context).pop(code);
         },
@@ -465,19 +468,17 @@ class AltchaWidgetState extends State<AltchaWidget> {
 
     _log('solver: native solve (concurrency=${widget.concurrency})');
     final start = DateTime.now();
-    final raw = await const MethodChannel('altcha_widget/pbkdf2').invokeMethod<Map<dynamic, dynamic>>(
-      'solve',
-      {
-        'nonce': _hexToBytes(params.nonce),
-        'salt': _hexToBytes(params.salt),
-        'cost': params.cost,
-        'keyLength': params.keyLength,
-        'keyPrefix': params.keyPrefix,
-        'hash': hash,
-        'concurrency': widget.concurrency,
-        'timeoutMs': 90000,
-      },
-    );
+    final raw = await const MethodChannel('altcha_widget/pbkdf2')
+        .invokeMethod<Map<dynamic, dynamic>>('solve', {
+          'nonce': _hexToBytes(params.nonce),
+          'salt': _hexToBytes(params.salt),
+          'cost': params.cost,
+          'keyLength': params.keyLength,
+          'keyPrefix': params.keyPrefix,
+          'hash': hash,
+          'concurrency': widget.concurrency,
+          'timeoutMs': 90000,
+        });
 
     if (raw == null) return null;
 
@@ -489,14 +490,18 @@ class AltchaWidgetState extends State<AltchaWidget> {
 
   Future<String?> _solveAndBuildPayload(AltchaChallenge altchaChallenge) async {
     final challenge = altchaChallenge.challenge;
-    final isPbkdf2 = challenge.parameters.algorithm.toUpperCase().startsWith('PBKDF2');
+    final isPbkdf2 = challenge.parameters.algorithm.toUpperCase().startsWith(
+      'PBKDF2',
+    );
     Solution? solution;
 
     if (!kIsWeb && isPbkdf2) {
       // PBKDF2 on native: one channel call, native threading does the work.
       solution = await _solveNativePbkdf2(challenge);
       if (solution != null) {
-        _log('solver: native solve done (counter=${solution.counter}, time=${solution.time}ms)');
+        _log(
+          'solver: native solve done (counter=${solution.counter}, time=${solution.time}ms)',
+        );
       } else {
         _log('solver: native solve timed out');
       }
@@ -507,17 +512,21 @@ class AltchaWidgetState extends State<AltchaWidget> {
         // User-provided deriveKey (e.g. sodium-based Argon2id): run in a single
         // background isolate via Isolate.run(), which supports closures.
         _log('solver: Isolate.run() with custom deriveKey');
-        solution = await Isolate.run(() => solveChallenge(
-          challenge: challenge,
-          deriveKey: customDeriveKey,
-        ));
+        solution = await isolateRun(
+          () =>
+              solveChallenge(challenge: challenge, deriveKey: customDeriveKey),
+        );
         if (solution != null) {
-          _log('solver: custom deriveKey done (counter=${solution.counter}, time=${solution.time}ms)');
+          _log(
+            'solver: custom deriveKey done (counter=${solution.counter}, time=${solution.time}ms)',
+          );
         } else {
           _log('solver: custom deriveKey timed out');
         }
       } else if (widget.concurrency > 1) {
-        _log('solver: solveChallengeIsolates (concurrency=${widget.concurrency})');
+        _log(
+          'solver: solveChallengeIsolates (concurrency=${widget.concurrency})',
+        );
         bool isolatesThrew = false;
         try {
           solution = await solveChallengeIsolates(
@@ -526,13 +535,17 @@ class AltchaWidgetState extends State<AltchaWidget> {
             concurrency: widget.concurrency,
           );
           if (solution != null) {
-            _log('solver: solveChallengeIsolates done (counter=${solution.counter}, time=${solution.time}ms)');
+            _log(
+              'solver: solveChallengeIsolates done (counter=${solution.counter}, time=${solution.time}ms)',
+            );
           } else {
             _log('solver: solveChallengeIsolates timed out — not falling back');
           }
         } catch (e) {
           isolatesThrew = true;
-          _log('solver: solveChallengeIsolates threw ($e) — falling back to compute()');
+          _log(
+            'solver: solveChallengeIsolates threw ($e) — falling back to compute()',
+          );
         }
 
         // Only fall back to compute() on isolate setup failure, not timeout.
@@ -541,7 +554,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
           final result = await compute(_computeSolve, challenge.toJson());
           if (result != null) {
             solution = Solution.fromJson(result);
-            _log('solver: compute() done (counter=${solution.counter}, time=${solution.time}s)');
+            _log(
+              'solver: compute() done (counter=${solution.counter}, time=${solution.time}s)',
+            );
           }
         }
       } else {
@@ -550,7 +565,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
         final result = await compute(_computeSolve, challenge.toJson());
         if (result != null) {
           solution = Solution.fromJson(result);
-          _log('solver: compute() done (counter=${solution.counter}, time=${solution.time}s)');
+          _log(
+            'solver: compute() done (counter=${solution.counter}, time=${solution.time}s)',
+          );
         }
       }
     } else {
@@ -563,7 +580,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
         deriveKey: channelDeriveKey,
       );
       if (solution != null) {
-        _log('solver: solveChallenge done (counter=${solution.counter}, time=${solution.time}s)');
+        _log(
+          'solver: solveChallenge done (counter=${solution.counter}, time=${solution.time}s)',
+        );
       }
     }
 
@@ -599,8 +618,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
       final body = jsonEncode({
         'code': code,
         'payload': payload,
-        'timeZone':
-            _sentinelTimeZone ? (await _getTimezone()) : null,
+        'timeZone': _sentinelTimeZone ? (await _getTimezone()) : null,
       });
       final headers = {
         'Content-Type': 'application/json',
@@ -626,10 +644,10 @@ class AltchaWidgetState extends State<AltchaWidget> {
           'Server verification failed with status ${response.statusCode}.',
         );
       }
-    } on SocketException {
-      throw NetworkException('Network error.');
     } on FormatException {
       throw DataParsingException('Malformed JSON.');
+    } on http.ClientException catch (e) {
+      throw NetworkException(e.toString());
     }
   }
 
@@ -653,8 +671,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
         final code = await _requestCodeVerification(
           altchaChallenge.codeChallenge!.image,
           _constructUrl(
-              altchaChallenge.codeChallenge!.audio,
-              _challengeUrl ?? (_verifyUrl.isNotEmpty ? _verifyUrl : null)),
+            altchaChallenge.codeChallenge!.audio,
+            _challengeUrl ?? (_verifyUrl.isNotEmpty ? _verifyUrl : null),
+          ),
           altchaChallenge.codeChallenge!.length,
         );
         setState(() => _isCodeRequired = false);
@@ -666,8 +685,11 @@ class AltchaWidgetState extends State<AltchaWidget> {
           });
           return;
         }
-        final serverVerification =
-            await _requestServerVerification(verifyUrl, payload, code);
+        final serverVerification = await _requestServerVerification(
+          verifyUrl,
+          payload,
+          code,
+        );
         if (!serverVerification.verified) {
           throw Exception('Server verification failed.');
         }
@@ -676,7 +698,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
       }
       final elapsed = DateTime.now().difference(startTime).inMilliseconds;
       if (elapsed < widget.minDuration) {
-        await Future.delayed(Duration(milliseconds: widget.minDuration - elapsed));
+        await Future.delayed(
+          Duration(milliseconds: widget.minDuration - elapsed),
+        );
       }
       setState(() => _isSolved = true);
     } catch (e, stack) {
@@ -715,62 +739,65 @@ class AltchaWidgetState extends State<AltchaWidget> {
         return false;
       },
       child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: colorScheme.outline, width: 1.0),
-            borderRadius: BorderRadius.circular(4.0),
-            color: colorScheme.surface,
-          ),
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  _buildStatus(localizations, colorScheme),
-                  const Spacer(),
-                  if (widget.hideLogo != true)
-                    SvgPicture.string(
-                      _kAltchaLogoSvg,
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                        colorScheme.onSurfaceVariant.withValues(alpha: 255 * 0.7),
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                ],
-              ),
-              if (_errorMessage.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    _errorMessage,
-                    style: TextStyle(color: colorScheme.error),
-                  ),
-                ),
-              if (widget.hideFooter != true)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      localizations.text('footer'),
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant
-                            .withValues(alpha: 255 * 0.7),
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+        decoration: BoxDecoration(
+          border: Border.all(color: colorScheme.outline, width: 1.0),
+          borderRadius: BorderRadius.circular(4.0),
+          color: colorScheme.surface,
         ),
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _buildStatus(localizations, colorScheme),
+                const Spacer(),
+                if (widget.hideLogo != true)
+                  SvgPicture.string(
+                    _kAltchaLogoSvg,
+                    width: 24,
+                    height: 24,
+                    colorFilter: ColorFilter.mode(
+                      colorScheme.onSurfaceVariant.withValues(alpha: 255 * 0.7),
+                      BlendMode.srcIn,
+                    ),
+                  ),
+              ],
+            ),
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(color: colorScheme.error),
+                ),
+              ),
+            if (widget.hideFooter != true)
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    localizations.text('footer'),
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant.withValues(
+                        alpha: 255 * 0.7,
+                      ),
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildStatus(
-      AltchaLocalizations localizations, ColorScheme colorScheme) {
+    AltchaLocalizations localizations,
+    ColorScheme colorScheme,
+  ) {
     if (_isCodeRequired) {
       return Row(
         children: [
@@ -809,11 +836,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
           SizedBox(
             width: 24,
             height: 24,
-            child: Icon(
-              Icons.check_box,
-              color: colorScheme.primary,
-              size: 24,
-            ),
+            child: Icon(Icons.check_box, color: colorScheme.primary, size: 24),
           ),
           const SizedBox(width: 8.0),
           Text(

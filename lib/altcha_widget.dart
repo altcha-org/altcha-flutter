@@ -1,4 +1,10 @@
-export 'package:altcha_lib/altcha_lib.dart' show Challenge, DeriveKeyFunction, DeriveKeyResult, ChallengeParameters, Solution;
+export 'package:altcha_lib/altcha_lib.dart'
+    show
+        Challenge,
+        DeriveKeyFunction,
+        DeriveKeyResult,
+        ChallengeParameters,
+        Solution;
 export 'src/algorithms.dart' show channelDeriveKey;
 export 'src/exceptions.dart';
 export 'src/his_collector.dart' show HisCollector;

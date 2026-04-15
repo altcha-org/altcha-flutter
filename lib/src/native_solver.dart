@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:altcha_lib/altcha_lib.dart';
@@ -6,6 +5,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show MethodChannel;
 
 import 'algorithms.dart';
+import 'native.dart';
 
 Uint8List _hexToBytes(String hex) {
   final bytes = Uint8List(hex.length ~/ 2);
@@ -44,14 +44,12 @@ Future<Solution?> solveChallenge({
   int timeoutMs = 90000,
 }) async {
   if (kIsWeb) {
-    return solveChallenge(
-      challenge: challenge,
-      deriveKey: channelDeriveKey,
-    );
+    return solveChallenge(challenge: challenge, deriveKey: channelDeriveKey);
   }
 
-  final isPbkdf2 =
-      challenge.parameters.algorithm.toUpperCase().startsWith('PBKDF2');
+  final isPbkdf2 = challenge.parameters.algorithm.toUpperCase().startsWith(
+    'PBKDF2',
+  );
 
   if (isPbkdf2) {
     final params = challenge.parameters;
@@ -61,15 +59,15 @@ Future<Solution?> solveChallenge({
 
     final raw = await const MethodChannel('altcha_widget/pbkdf2')
         .invokeMethod<Map<dynamic, dynamic>>('solve', {
-      'nonce': _hexToBytes(params.nonce),
-      'salt': _hexToBytes(params.salt),
-      'cost': params.cost,
-      'keyLength': params.keyLength,
-      'keyPrefix': params.keyPrefix,
-      'hash': hash,
-      'concurrency': concurrency,
-      'timeoutMs': timeoutMs,
-    });
+          'nonce': _hexToBytes(params.nonce),
+          'salt': _hexToBytes(params.salt),
+          'cost': params.cost,
+          'keyLength': params.keyLength,
+          'keyPrefix': params.keyPrefix,
+          'hash': hash,
+          'concurrency': concurrency,
+          'timeoutMs': timeoutMs,
+        });
 
     if (raw == null) return null;
     return Solution(
@@ -79,10 +77,9 @@ Future<Solution?> solveChallenge({
   }
 
   if (deriveKey != null) {
-    return Isolate.run(() => solveChallenge(
-          challenge: challenge,
-          deriveKey: deriveKey,
-        ));
+    return isolateRun(
+      () => solveChallenge(challenge: challenge, deriveKey: deriveKey),
+    );
   }
 
   return solveChallengeIsolates(

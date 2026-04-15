@@ -1,5 +1,5 @@
 PODS:
-  - altcha_widget (2.0.0):
+  - altcha_widget (2.0.1):
     - FlutterMacOS
   - audio_session (0.0.1):
     - FlutterMacOS
@@ -30,7 +30,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/just_audio/darwin
 
 SPEC CHECKSUMS:
-  altcha_widget: e81f40ee816e6c6b7ffc4c61ad2a670d3b720108
+  altcha_widget: 29b2c80621b731da7ef5e6aa227543323ddd57ef
   audio_session: eaca2512cf2b39212d724f35d11f46180ad3a33e
   flutter_timezone: d272288c69082ad571630e0d17140b3d6b93dc0c
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1

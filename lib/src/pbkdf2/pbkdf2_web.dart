@@ -27,8 +27,7 @@ Future<Uint8List> platformSha({
 
   var current = initBuf;
   for (var i = 0; i < iterations; i++) {
-    final bits =
-        await subtle.digest(hash.toJS, current.buffer.toJS).toDart;
+    final bits = await subtle.digest(hash.toJS, current.buffer.toJS).toDart;
     current = (bits as JSArrayBuffer).toDart.asUint8List();
   }
   return current.sublist(0, keyLength);

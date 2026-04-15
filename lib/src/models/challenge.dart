@@ -5,11 +5,7 @@ class AltchaCodeChallenge {
   final int? length;
   final String? audio;
 
-  AltchaCodeChallenge({
-    required this.image,
-    this.audio,
-    this.length,
-  });
+  AltchaCodeChallenge({required this.image, this.audio, this.length});
 
   factory AltchaCodeChallenge.fromJson(Map<String, dynamic> json) {
     return AltchaCodeChallenge(
@@ -33,7 +29,8 @@ class AltchaChallenge {
       challenge: Challenge.fromJson(json),
       codeChallenge: json['codeChallenge'] != null
           ? AltchaCodeChallenge.fromJson(
-              json['codeChallenge'] as Map<String, dynamic>)
+              json['codeChallenge'] as Map<String, dynamic>,
+            )
           : null,
     );
   }

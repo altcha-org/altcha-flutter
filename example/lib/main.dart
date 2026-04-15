@@ -22,8 +22,9 @@ class _PreviewAppState extends State<PreviewApp> {
 
   void _toggleTheme() {
     setState(() {
-      _themeMode =
-          _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+      _themeMode = _themeMode == ThemeMode.dark
+          ? ThemeMode.light
+          : ThemeMode.dark;
     });
   }
 
@@ -91,10 +92,10 @@ class _AltchaDemoPageState extends State<AltchaDemoPage> {
   final GlobalKey<AltchaWidgetState> _altchaKey = GlobalKey();
 
   final TextEditingController _challengeUrlController = TextEditingController(
-    text: 'https://sentinel-test.b-cdn.net/v1/challenge?apiKey=key_1j4lrsfk900a3ukffs7', //'http://127.0.0.1:3000/v1/challenge',
+    text: 'http://127.0.0.1:3000/v1/challenge',
   );
 
-  String _challengeUrl = 'https://sentinel-test.b-cdn.net/v1/challenge?apiKey=key_1j4lrsfk900a3ukffs7'; //'http://127.0.0.1:3000/v1/challenge';
+  String _challengeUrl = 'http://127.0.0.1:3000/v1/challenge';
 
   String? _verifiedPayload;
   AltchaServerVerification? _serverVerification;
@@ -180,7 +181,9 @@ class _AltchaDemoPageState extends State<AltchaDemoPage> {
                         },
                         onServerVerification: (verification) {
                           setState(() => _serverVerification = verification);
-                          debugPrint('altcha server verification: $verification');
+                          debugPrint(
+                            'altcha server verification: $verification',
+                          );
                         },
                         onVerified: (value) {
                           setState(() => _verifiedPayload = value);
@@ -214,7 +217,8 @@ class _AltchaDemoPageState extends State<AltchaDemoPage> {
                                 return DropdownMenuItem<Locale>(
                                   value: locale,
                                   child: Text(
-                                      locale.languageCode.toUpperCase()),
+                                    locale.languageCode.toUpperCase(),
+                                  ),
                                 );
                               }).toList(),
                               onChanged: (newLocale) {
@@ -229,7 +233,8 @@ class _AltchaDemoPageState extends State<AltchaDemoPage> {
                     ],
                   ),
                 ),
-                if (_verifiedPayload != null || _serverVerification != null) ...[
+                if (_verifiedPayload != null ||
+                    _serverVerification != null) ...[
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -244,7 +249,9 @@ class _AltchaDemoPageState extends State<AltchaDemoPage> {
                           const Text(
                             'Payload:',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 12),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -257,12 +264,15 @@ class _AltchaDemoPageState extends State<AltchaDemoPage> {
                           const Text(
                             'Server Verification:',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 12),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            const JsonEncoder.withIndent('  ')
-                                .convert(_serverVerification!.toJson()),
+                            const JsonEncoder.withIndent(
+                              '  ',
+                            ).convert(_serverVerification!.toJson()),
                             style: const TextStyle(fontSize: 11),
                           ),
                         ],

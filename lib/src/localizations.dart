@@ -38,7 +38,8 @@ class AltchaLocalizations {
     'de': {
       'cancel': 'Abbrechen',
       'enterCode': 'Code eingeben',
-      'error': 'Verifizierung fehlgeschlagen. Bitte versuchen Sie es später erneut.',
+      'error':
+          'Verifizierung fehlgeschlagen. Bitte versuchen Sie es später erneut.',
       'expired': 'Verifizierung abgelaufen. Bitte erneut versuchen.',
       'footer': 'Geschützt von ALTCHA',
       'incompleteCode': 'Unvollständiger Code. Bitte erneut versuchen.',

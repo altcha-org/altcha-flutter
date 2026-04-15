@@ -121,8 +121,8 @@ class _AltchaAudioButtonWidgetState extends State<AltchaAudioButtonWidget> {
       onPressed: _isLoading
           ? null
           : _isPlaying
-              ? _stopAudio
-              : _playAudio,
+          ? _stopAudio
+          : _playAudio,
       icon: _isLoading
           ? const SizedBox(
               width: 24,
