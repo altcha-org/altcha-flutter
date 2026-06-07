@@ -1,3 +1,7 @@
+## 2.0.3
+
+- Fix Windows CMakeLists in debug [#6]
+
 ## 2.0.2
 
 - Fix formatting and web compatibility
