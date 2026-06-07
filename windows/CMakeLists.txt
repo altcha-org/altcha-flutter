@@ -18,8 +18,8 @@ set_target_properties(${PLUGIN_NAME} PROPERTIES
 target_compile_features(${PLUGIN_NAME} PRIVATE cxx_std_17)
 
 target_compile_options(${PLUGIN_NAME} PRIVATE
-  $<$<CXX_COMPILER_ID:MSVC>:/O2 /fp:fast>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-O3 -ffast-math>
+  $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<NOT:$<CONFIG:Debug>>>:/O2 /fp:fast>
+  $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<NOT:$<CONFIG:Debug>>>:-O3 -ffast-math>
 )
 
 # Enable SHA-NI intrinsics on x86-64 MSVC.  /arch:AVX tells MSVC to emit AVX
