@@ -1,3 +1,7 @@
+## 2.0.4
+
+- Fix build with Swift Package Manager [#7]
+
 ## 2.0.3
 
 - Fix Windows CMakeLists in debug [#6]
