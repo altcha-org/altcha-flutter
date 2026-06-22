@@ -1,5 +1,12 @@
-import Flutter
+import FlutterMacOS
 import Darwin
+// Under SwiftPM the ObjC++ solver lives in a separate target/module
+// (SwiftPM disallows mixed Swift + C/ObjC sources in one target). Under
+// CocoaPods the bridge is compiled into the same `altcha_widget` module,
+// so the import is skipped there.
+#if canImport(AltchaPbkdf2Bridge)
+import AltchaPbkdf2Bridge
+#endif
 
 public class AltchaWidgetPlugin: NSObject, FlutterPlugin {
     // Logged once per process on first solve call.
@@ -13,7 +20,7 @@ public class AltchaWidgetPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "altcha_widget/pbkdf2",
-            binaryMessenger: registrar.messenger()
+            binaryMessenger: registrar.messenger
         )
         registrar.addMethodCallDelegate(AltchaWidgetPlugin(), channel: channel)
     }

@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'MIT', :file => '../LICENSE' }
   s.author           = { 'Daniel Regeci' => '536331+ovx@users.noreply.github.com' }
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'altcha_widget/Sources/**/*'
   s.dependency 'Flutter'
   s.platform         = :ios, '12.0'
   s.pod_target_xcconfig = {

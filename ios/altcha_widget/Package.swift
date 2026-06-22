@@ -7,14 +7,22 @@ let package = Package(
     .iOS("12.0"),
   ],
   products: [
-    .library(name: "altcha_widget", targets: ["altcha_widget"]),
+    .library(name: "altcha-widget", targets: ["altcha_widget"]),
   ],
   targets: [
+    // ObjC++ PBKDF2 solver (shared C++ impl via symlinks to darwin/Classes).
+    // Must be a separate target: SwiftPM does not allow mixed Swift and
+    // C/ObjC source files within a single target.
+    .target(
+      name: "AltchaPbkdf2Bridge",
+      dependencies: [],
+      path: "Sources/AltchaPbkdf2Bridge",
+      publicHeadersPath: "."
+    ),
     .target(
       name: "altcha_widget",
-      dependencies: [],
-      path: "../Classes",
-      publicHeadersPath: "."
+      dependencies: ["AltchaPbkdf2Bridge"],
+      path: "Sources/altcha_widget"
     ),
   ],
   cxxLanguageStandard: .cxx17
