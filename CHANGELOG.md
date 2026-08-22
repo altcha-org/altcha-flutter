@@ -1,3 +1,7 @@
+## 2.0.5
+
+- Fix "No Material widget found" error on Flutter 3.47+ by giving the widget its own Material ancestor [#8]
+
 ## 2.0.4
 
 - Fix build with Swift Package Manager [#7]
