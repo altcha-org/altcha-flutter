@@ -738,57 +738,64 @@ class AltchaWidgetState extends State<AltchaWidget> {
         );
         return false;
       },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: colorScheme.outline, width: 1.0),
-          borderRadius: BorderRadius.circular(4.0),
-          color: colorScheme.surface,
-        ),
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                _buildStatus(localizations, colorScheme),
-                const Spacer(),
-                if (widget.hideLogo != true)
-                  SvgPicture.string(
-                    _kAltchaLogoSvg,
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      colorScheme.onSurfaceVariant.withValues(alpha: 255 * 0.7),
-                      BlendMode.srcIn,
-                    ),
-                  ),
-              ],
-            ),
-            if (_errorMessage.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  _errorMessage,
-                  style: TextStyle(color: colorScheme.error),
-                ),
-              ),
-            if (widget.hideFooter != true)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    localizations.text('footer'),
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(
-                        alpha: 255 * 0.7,
+      // Supplies its own Material ancestor so descendants (e.g. Checkbox)
+      // don't depend on the host app's Material tree — apps that migrate to
+      // package:material_ui provide a Material of a different type than the
+      // one this package imports, which breaks Material.of() lookups.
+      child: Material(
+        type: MaterialType.transparency,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: colorScheme.outline, width: 1.0),
+            borderRadius: BorderRadius.circular(4.0),
+            color: colorScheme.surface,
+          ),
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _buildStatus(localizations, colorScheme),
+                  const Spacer(),
+                  if (widget.hideLogo != true)
+                    SvgPicture.string(
+                      _kAltchaLogoSvg,
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        colorScheme.onSurfaceVariant.withValues(alpha: 255 * 0.7),
+                        BlendMode.srcIn,
                       ),
-                      fontSize: 12.0,
+                    ),
+                ],
+              ),
+              if (_errorMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    _errorMessage,
+                    style: TextStyle(color: colorScheme.error),
+                  ),
+                ),
+              if (widget.hideFooter != true)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      localizations.text('footer'),
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant.withValues(
+                          alpha: 255 * 0.7,
+                        ),
+                        fontSize: 12.0,
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
