@@ -1,5 +1,5 @@
 PODS:
-  - altcha_widget (2.0.4):
+  - altcha_widget (2.1.0):
     - FlutterMacOS
   - audio_session (0.0.1):
     - FlutterMacOS

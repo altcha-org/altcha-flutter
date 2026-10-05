@@ -1,3 +1,8 @@
+## 2.1.0
+
+- Upgrade `altcha_lib` to 1.0.0
+- Fix slow native PBKDF2 solver in iOS/macOS Debug builds (~6x): always compile the solver with `-O3` (CocoaPods and Swift Package Manager), matching Android/Linux
+
 ## 2.0.5
 
 - Fix "No Material widget found" error on Flutter 3.47+ by giving the widget its own Material ancestor [#8]
