@@ -17,7 +17,9 @@ let package = Package(
       name: "AltchaPbkdf2Bridge",
       dependencies: [],
       path: "Sources/AltchaPbkdf2Bridge",
-      publicHeadersPath: "."
+      publicHeadersPath: ".",
+      // Always optimize the PBKDF2 solver (also in Debug), matching Android/Linux -O3.
+      cxxSettings: [.unsafeFlags(["-O3"])]
     ),
     .target(
       name: "altcha_widget",

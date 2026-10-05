@@ -13,6 +13,8 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    # Always optimize the PBKDF2 solver (also in Debug), matching Android/Linux -O3.
+    'GCC_OPTIMIZATION_LEVEL' => '3',
   }
   s.swift_version    = '5.0'
 end
