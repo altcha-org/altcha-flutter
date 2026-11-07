@@ -1,3 +1,8 @@
+## 2.2.0
+
+- Send `Accept: application/json` with challenge, HIS and server verification requests
+- Fix server verification request ignoring the custom `httpClient`
+
 ## 2.1.0
 
 - Upgrade `altcha_lib` to 1.0.0

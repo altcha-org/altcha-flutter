@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'altcha_widget'
-  s.version          = '2.1.0'
+  s.version          = '2.2.0'
   s.summary          = 'ALTCHA Flutter widget.'
   s.description      = 'Privacy-first, accessible CAPTCHA widget.'
   s.homepage         = 'https://altcha.org'
