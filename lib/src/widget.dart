@@ -774,7 +774,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
                       width: 24,
                       height: 24,
                       colorFilter: ColorFilter.mode(
-                        colorScheme.onSurfaceVariant.withValues(alpha: 255 * 0.7),
+                        colorScheme.onSurfaceVariant.withValues(
+                          alpha: 255 * 0.7,
+                        ),
                         BlendMode.srcIn,
                       ),
                     ),

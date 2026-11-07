@@ -12,8 +12,8 @@ topics:
   - security
 
 environment:
-  sdk: ^3.8.1
-  flutter: ">=1.17.0"
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
 
 dependencies:
   altcha_lib: ^1.0.0

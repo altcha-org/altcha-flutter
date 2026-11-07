@@ -4,8 +4,8 @@ publish_to: 'none'
 version: 1.0.0
 
 environment:
-  sdk: ^3.8.1
-  flutter: ">=1.17.0"
+  sdk: ^3.12.0
+  flutter: ">=3.47.0"
 
 dependencies:
   altcha_lib: ^1.0.0
