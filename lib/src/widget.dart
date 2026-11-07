@@ -236,7 +236,11 @@ class AltchaWidgetState extends State<AltchaWidget> {
       final uri = Uri.parse(url);
       final response = await widget.httpClient.get(
         uri,
-        headers: {..._buildExtraHeaders(), ...?widget.httpHeaders},
+        headers: {
+          'Accept': 'application/json',
+          ..._buildExtraHeaders(),
+          ...?widget.httpHeaders,
+        },
       );
       _log('challenge response (${response.statusCode}): ${response.body}');
       if (response.statusCode != 200) {
@@ -307,6 +311,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
     _log('submitting HIS to: $hisUrl');
     final body = jsonEncode({'his': _hisCollector.export()});
     final headers = {
+      'Accept': 'application/json',
       'Content-Type': 'application/json',
       ..._buildExtraHeaders(),
       ...?widget.httpHeaders,
@@ -621,6 +626,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
         'timeZone': _sentinelTimeZone ? (await _getTimezone()) : null,
       });
       final headers = {
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
         ..._buildExtraHeaders(),
         ...?widget.httpHeaders,
