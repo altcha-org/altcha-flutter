@@ -631,7 +631,11 @@ class AltchaWidgetState extends State<AltchaWidget> {
         ..._buildExtraHeaders(),
         ...?widget.httpHeaders,
       };
-      final response = await http.post(uri, body: body, headers: headers);
+      final response = await widget.httpClient.post(
+        uri,
+        body: body,
+        headers: headers,
+      );
       _log(
         'server verification response (${response.statusCode}): ${response.body}',
       );
