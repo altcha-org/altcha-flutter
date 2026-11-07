@@ -1,3 +1,8 @@
+## 2.3.0
+
+- Fix Android build with AGP 9 built-in Kotlin: migrate to built-in Kotlin (drop `kotlin-android`, use `kotlin.compilerOptions`) and compile against Android SDK 36 [#9]
+- Update the minimum supported SDK version to Flutter 3.44/Dart 3.12
+
 ## 2.2.0
 
 - Send `Accept: application/json` with challenge, HIS and server verification requests
