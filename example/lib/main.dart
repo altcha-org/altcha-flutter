@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:altcha_widget/altcha_widget.dart';
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -53,7 +54,9 @@ class _PreviewAppState extends State<PreviewApp> {
             // Add custom translation overrides here
           },
         ),
+        // ignore: deprecated_member_use
         GlobalMaterialLocalizations.delegate,
+        // ignore: deprecated_member_use
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],

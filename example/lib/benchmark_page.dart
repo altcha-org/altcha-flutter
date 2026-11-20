@@ -5,6 +5,7 @@ import 'package:altcha_lib/algorithms.dart' show adaptiveDeriveKey;
 import 'package:altcha_widget/altcha_widget.dart' show channelDeriveKey;
 import 'package:altcha_lib/altcha_lib.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 

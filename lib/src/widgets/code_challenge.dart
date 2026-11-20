@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:altcha_widget/src/localizations.dart';
+// Migrating to package:material_ui is a breaking change for consumers.
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'audio_button.dart';

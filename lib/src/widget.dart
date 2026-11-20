@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:altcha_lib/altcha_lib.dart';
 import 'package:flutter/foundation.dart';
+// Migrating to package:material_ui is a breaking change for consumers.
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_svg/flutter_svg.dart';
