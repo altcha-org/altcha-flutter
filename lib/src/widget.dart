@@ -98,9 +98,9 @@ class AltchaWidget extends StatefulWidget {
 
   /// Enable the Human Interaction Signature (HIS) collector.
   ///
-  /// When true (the default), pointer, touch, and scroll events are collected
-  /// and submitted to the server when it requests HIS data.  Set to false to
-  /// opt out of HIS collection entirely.
+  /// When true, pointer, touch, scroll, click and hardware key timing events
+  /// are collected and submitted to the server when it requests HIS data.
+  /// Defaults to false.
   final bool humanInteractionSignature;
 
   /// Optional externally-managed [HisCollector] instance.
@@ -111,9 +111,9 @@ class AltchaWidget extends StatefulWidget {
   /// while the ALTCHA widget was on screen.
   ///
   /// The caller is responsible for registering and removing the global pointer
-  /// route on the external collector (via [HisCollector.attach] /
-  /// [HisCollector.detach]).  The widget will not register its own route when
-  /// an external collector is supplied.
+  /// route and keyboard handler on the external collector (via
+  /// [HisCollector.attach] / [HisCollector.detach]).  The widget will not
+  /// register its own when an external collector is supplied.
   final HisCollector? collector;
 
   /// Called when an error occurs during verification.
@@ -309,7 +309,10 @@ class AltchaWidgetState extends State<AltchaWidget> {
   /// the actual challenge.
   Future<AltchaChallenge> _submitHisAndFetchChallenge(Uri hisUrl) async {
     _log('submitting HIS to: $hisUrl');
-    final body = jsonEncode({'his': _hisCollector.export()});
+    final his = _hisCollector.export();
+    // A code challenge's verification request sends only what follows.
+    _hisCollector.mark();
+    final body = jsonEncode({'his': his});
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -612,8 +615,9 @@ class AltchaWidgetState extends State<AltchaWidget> {
   Future<AltchaServerVerification> _requestServerVerification(
     String verifyUrl,
     String payload,
-    String? code,
-  ) async {
+    String? code, {
+    Map<String, dynamic>? his,
+  }) async {
     if (verifyUrl.isEmpty) {
       throw Exception('verifyUrl must be a valid URL.');
     }
@@ -622,6 +626,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
       _log('server verification url: ${uri.toString()}');
       final body = jsonEncode({
         'code': code,
+        'his': ?his,
         'payload': payload,
         'timeZone': _sentinelTimeZone ? (await _getTimezone()) : null,
       });
@@ -699,6 +704,11 @@ class AltchaWidgetState extends State<AltchaWidget> {
           verifyUrl,
           payload,
           code,
+          his:
+              altchaChallenge.codeChallenge!.his &&
+                  widget.humanInteractionSignature
+              ? _hisCollector.exportSinceMark()
+              : null,
         );
         if (!serverVerification.verified) {
           throw Exception('Server verification failed.');
@@ -742,10 +752,7 @@ class AltchaWidgetState extends State<AltchaWidget> {
 
     return NotificationListener<ScrollUpdateNotification>(
       onNotification: (n) {
-        _hisCollector.recordScroll(
-          n.metrics.pixels,
-          DateTime.now().millisecondsSinceEpoch,
-        );
+        _hisCollector.recordScroll(n.metrics.pixels);
         return false;
       },
       // Supplies its own Material ancestor so descendants (e.g. Checkbox)

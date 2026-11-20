@@ -193,7 +193,9 @@ final solution = await solveChallenge(
 
 ## Human Interaction Signature (HIS)
 
-Some ALTCHA Sentinel configurations require a Human Interaction Signature before issuing a challenge. When the server requests HIS data, the widget automatically collects pointer, touch, and scroll events, submits them to the server, and uses the response as the actual challenge.
+Some ALTCHA Sentinel configurations require a Human Interaction Signature before issuing a challenge. When the server requests HIS data, the widget automatically collects pointer, touch, and scroll movement, clicks (position, hold time, offset from the target's center, pointer type), and hardware key timing (never key values), submits them to the server, and uses the response as the actual challenge. The payload matches the ALTCHA JS widget's HIS v2 (`v: 2`).
+
+When a code challenge carries `his: true`, the widget also sends the data collected since the challenge request (the interaction while entering the code) as `his` with the server verification request.
 
 HIS collection is disabled by default. Enable it with `humanInteractionSignature: true`.
 
@@ -219,7 +221,9 @@ AltchaWidget(
 collector.detach();
 ```
 
-When a `collector` is provided, the widget uses it as-is and does not register its own pointer route. When omitted and `humanInteractionSignature` is `true`, the widget creates an internal collector that is active only while the widget is on screen.
+When a `collector` is provided, the widget uses it as-is and does not register its own pointer route or keyboard handler. When omitted and `humanInteractionSignature` is `true`, the widget creates an internal collector that is active only while the widget is on screen.
+
+Keep the collector's default `maxSamples` (60) and `sampleIntervalMs` (50): ALTCHA Sentinel treats longer buffers or denser samples as tampered data.
 
 ### Origin
 

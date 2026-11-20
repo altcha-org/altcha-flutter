@@ -5,13 +5,23 @@ class AltchaCodeChallenge {
   final int? length;
   final String? audio;
 
-  AltchaCodeChallenge({required this.image, this.audio, this.length});
+  /// The server wants the HIS data collected since the challenge with the
+  /// verification request.
+  final bool his;
+
+  AltchaCodeChallenge({
+    required this.image,
+    this.audio,
+    this.length,
+    this.his = false,
+  });
 
   factory AltchaCodeChallenge.fromJson(Map<String, dynamic> json) {
     return AltchaCodeChallenge(
       audio: json['audio'] as String?,
       image: json['image'] as String,
       length: json['length'] as int?,
+      his: json['his'] == true,
     );
   }
 }

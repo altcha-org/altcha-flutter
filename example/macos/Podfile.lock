@@ -30,7 +30,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/just_audio/darwin
 
 SPEC CHECKSUMS:
-  altcha_widget: 157ae025deec6fa44b34cf37d926be15b4daf6b2
+  altcha_widget: 24545fa8ebbd63b026e6017f403f7b8119aa76f0
   audio_session: eaca2512cf2b39212d724f35d11f46180ad3a33e
   flutter_timezone: d272288c69082ad571630e0d17140b3d6b93dc0c
   FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
